@@ -1,0 +1,295 @@
+<div class="checkout-page container">
+
+  <!-- Top Header & Breadcrumb -->
+  <div class="checkout-top-header">
+    <div class="breadcrumb-back-row">
+      <span class="breadcrumb"><a routerLink="/">Home</a> / <a routerLink="/cart">Cart</a> / Checkout</span>
+      <a routerLink="/cart" class="back-to-cart-link"><i class="fas fa-arrow-left"></i> Back to Cart</a>
+    </div>
+
+    <div class="checkout-title-box">
+      <div class="checkout-icon-badge">
+        <i class="fas fa-file-invoice-dollar"></i>
+      </div>
+      <div>
+        <h1>Complete Your Order</h1>
+        <p>Review your items and complete your purchase</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-border text-success"></div>
+    <p>Loading checkout details...</p>
+  </div>
+
+  <div *ngIf="!isLoading" class="checkout-layout">
+
+    <!-- ================= Left Column: Address & Payment Forms ================= -->
+    <div class="checkout-forms-column">
+
+      <!-- 1. Shipping Address Card -->
+      <div class="checkout-card">
+        <div class="card-header-bar">
+          <i class="fas fa-home"></i>
+          <div>
+            <h3>Shipping Address</h3>
+            <p>Where should we deliver your order?</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          
+          <!-- Saved Addresses Section -->
+          <div class="saved-addresses-section" *ngIf="savedAddresses.length > 0">
+            <h4 class="sub-section-title"><i class="fas fa-bookmark icon-green"></i> Saved Addresses</h4>
+            <p class="sub-section-desc">Select a saved address or enter a new one below:</p>
+
+            <div class="saved-addresses-grid">
+              <div 
+                *ngFor="let addr of savedAddresses" 
+                class="address-option-card"
+                [class.selected]="selectedAddressId === addr._id && !useCustomAddress"
+                (click)="selectAddress(addr)"
+              >
+                <div class="addr-icon-box">
+                  <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="addr-info">
+                  <strong>{{ addr.name || addr.city }}</strong>
+                  <p>{{ addr.details }}</p>
+                  <div class="addr-meta">
+                    <span><i class="fas fa-phone"></i> {{ addr.phone }}</span>
+                    <span><i class="fas fa-city"></i> {{ addr.city }}</span>
+                  </div>
+                </div>
+                <div class="radio-indicator">
+                  <div class="radio-dot" *ngIf="selectedAddressId === addr._id && !useCustomAddress"></div>
+                </div>
+              </div>
+
+              <!-- Use Different Address Dotted Box -->
+              <div 
+                class="address-option-card add-new-dashed" 
+                [class.selected]="useCustomAddress"
+                (click)="enableCustomAddress()"
+              >
+                <div class="addr-icon-box plus-bg">
+                  <i class="fas fa-plus"></i>
+                </div>
+                <div class="addr-info">
+                  <strong>Use a different address</strong>
+                  <p>Enter a new shipping address manually</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address Form -->
+          <div class="address-inputs-form">
+            <div class="info-notice-box">
+              <i class="fas fa-info-circle text-primary"></i>
+              <span>Delivery Information: Please ensure your address is accurate for prompt delivery</span>
+            </div>
+
+            <form [formGroup]="checkoutForm" class="form-grid">
+              <div class="form-group">
+                <label>City *</label>
+                <input 
+                  type="text" 
+                  formControlName="city" 
+                  placeholder="e.g. Cairo, Alexandria, Giza" 
+                  class="form-control"
+                  [class.input-error]="checkoutForm.get('city')?.touched && checkoutForm.get('city')?.invalid"
+                />
+                <div *ngIf="checkoutForm.get('city')?.touched && checkoutForm.get('city')?.invalid" class="error-msg">
+                  <span>City is required</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Street Address *</label>
+                <div class="input-with-icon">
+                  <i class="fas fa-map-marker-alt input-left-icon"></i>
+                  <input 
+                    type="text" 
+                    formControlName="details" 
+                    placeholder="Street name, building number, floor, apartment..." 
+                    class="form-control with-icon"
+                    [class.input-error]="checkoutForm.get('details')?.touched && checkoutForm.get('details')?.invalid"
+                  />
+                </div>
+                <div *ngIf="checkoutForm.get('details')?.touched && checkoutForm.get('details')?.invalid" class="error-msg">
+                  <span>Street address details are required</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Phone Number *</label>
+                <div class="input-with-icon">
+                  <i class="fas fa-phone input-left-icon"></i>
+                  <input 
+                    type="tel" 
+                    formControlName="phone" 
+                    placeholder="01xxxxxxxxx" 
+                    class="form-control with-icon"
+                    [class.input-error]="checkoutForm.get('phone')?.touched && checkoutForm.get('phone')?.invalid"
+                  />
+                  <span class="input-right-hint">Egyptian numbers only</span>
+                </div>
+                <div *ngIf="checkoutForm.get('phone')?.touched && checkoutForm.get('phone')?.invalid" class="error-msg">
+                  <span *ngIf="checkoutForm.get('phone')?.errors?.['required']">Phone number is required</span>
+                  <span *ngIf="checkoutForm.get('phone')?.errors?.['pattern']">Must be a valid 11-digit mobile number starting with 01</span>
+                </div>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- 2. Payment Method Card -->
+      <div class="checkout-card">
+        <div class="card-header-bar">
+          <i class="fas fa-credit-card"></i>
+          <div>
+            <h3>Payment Method</h3>
+            <p>Choose how you'd like to pay</p>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <div class="payment-options-list">
+            
+            <!-- Cash on Delivery -->
+            <div 
+              class="payment-option-box" 
+              [class.active]="paymentMethod === 'cash'"
+              (click)="setPaymentMethod('cash')"
+            >
+              <div class="pay-icon-circle green-circle">
+                <i class="fas fa-money-bill-wave"></i>
+              </div>
+              <div class="pay-text">
+                <strong>Cash on Delivery</strong>
+                <p>Pay when your order arrives at your doorstep</p>
+              </div>
+              <div class="check-radio">
+                <i *ngIf="paymentMethod === 'cash'" class="fas fa-check-circle icon-green"></i>
+                <div *ngIf="paymentMethod !== 'cash'" class="empty-circle"></div>
+              </div>
+            </div>
+
+            <!-- Pay Online -->
+            <div 
+              class="payment-option-box" 
+              [class.active]="paymentMethod === 'online'"
+              (click)="setPaymentMethod('online')"
+            >
+              <div class="pay-icon-circle blue-circle">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <div class="pay-text">
+                <strong>Pay Online</strong>
+                <p>Secure payment with Credit/Debit Card via Stripe</p>
+                <div class="payment-cards-icons">
+                  <i class="fab fa-cc-visa"></i>
+                  <i class="fab fa-cc-mastercard"></i>
+                </div>
+              </div>
+              <div class="check-radio">
+                <i *ngIf="paymentMethod === 'online'" class="fas fa-check-circle icon-green"></i>
+                <div *ngIf="paymentMethod !== 'online'" class="empty-circle"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Secure Note -->
+          <div class="secure-guarantee-note">
+            <i class="fas fa-shield-alt icon-green"></i>
+            <div>
+              <strong>Secure & Encrypted</strong>
+              <p>Your payment information is protected with 256-bit SSL encryption</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= Right Column: Order Summary ================= -->
+    <div class="checkout-summary-column">
+      <div class="summary-card">
+        <div class="summary-card-header">
+          <i class="fas fa-shopping-bag"></i>
+          <div>
+            <h3>Order Summary</h3>
+            <p>{{ cartProducts.length }} items</p>
+          </div>
+        </div>
+
+        <div class="summary-card-body">
+          
+          <!-- Items List Preview -->
+          <div class="checkout-items-preview">
+            <div *ngFor="let item of cartProducts" class="preview-item-row">
+              <img [src]="item.product.imageCover" [alt]="item.product.title" class="preview-thumb" />
+              <div class="preview-info">
+                <span class="preview-name" [title]="item.product.title">{{ item.product.title }}</span>
+                <span class="preview-qty">{{ item.count }} × {{ item.price }} EGP</span>
+              </div>
+              <strong class="preview-total">{{ item.price * item.count }}</strong>
+            </div>
+          </div>
+
+          <div class="pricing-divider"></div>
+
+          <!-- Lines -->
+          <div class="price-line">
+            <span>Subtotal</span>
+            <strong>{{ totalPrice }} EGP</strong>
+          </div>
+          <div class="price-line">
+            <span>Shipping</span>
+            <span class="shipping-free">FREE</span>
+          </div>
+
+          <div class="pricing-divider"></div>
+
+          <div class="price-line total-line">
+            <span>Total</span>
+            <span class="grand-total">{{ totalPrice }} EGP</span>
+          </div>
+
+          <!-- Error Alert -->
+          <div *ngIf="apiErrorMessage" class="alert-error">
+            <i class="fas fa-exclamation-circle"></i> {{ apiErrorMessage }}
+          </div>
+
+          <!-- Place Order Button -->
+          <button 
+            type="button" 
+            class="btn-place-order" 
+            (click)="onSubmit()" 
+            [disabled]="isSubmitting"
+          >
+            <i class="fas fa-check"></i>
+            <span *ngIf="!isSubmitting">Place Order</span>
+            <span *ngIf="isSubmitting"><span class="spinner-border spinner-border-sm"></span> Processing Order...</span>
+          </button>
+
+          <!-- Badges -->
+          <div class="trust-pills-row">
+            <span><i class="fas fa-shield-alt icon-green"></i> Secure</span>
+            <span><i class="fas fa-truck icon-green"></i> Fast Delivery</span>
+            <span><i class="fas fa-undo-alt icon-green"></i> Easy Returns</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

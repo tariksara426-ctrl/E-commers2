@@ -1,0 +1,137 @@
+<div class="orders-page container">
+
+  <!-- Top Breadcrumb & Actions -->
+  <div class="orders-top-header">
+    <div class="breadcrumb-row">
+      <span class="breadcrumb"><a routerLink="/">Home</a> / My Orders</span>
+      <a routerLink="/shop" class="continue-link"><i class="fas fa-shopping-bag"></i> Continue Shopping</a>
+    </div>
+
+    <div class="header-banner-box">
+      <div class="orders-icon-badge">
+        <i class="fas fa-box-open"></i>
+      </div>
+      <div>
+        <h1>My Orders</h1>
+        <p>Track and manage your {{ orders.length }} {{ orders.length === 1 ? 'order' : 'orders' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-border text-success"></div>
+    <p>Loading your orders...</p>
+  </div>
+
+  <!-- Empty Orders State -->
+  <div *ngIf="!isLoading && orders.length === 0" class="empty-state">
+    <i class="fas fa-box-open"></i>
+    <h3>No orders found</h3>
+    <p>You haven't placed any orders with FreshCart yet.</p>
+    <a routerLink="/shop" class="btn-primary-green">
+      <i class="fas fa-shopping-cart"></i> Start Shopping
+    </a>
+  </div>
+
+  <!-- Orders List -->
+  <div *ngIf="!isLoading && orders.length > 0" class="orders-list">
+    
+    <div *ngFor="let order of orders" class="order-card">
+      
+      <!-- Order Header Row -->
+      <div class="order-summary-row" (click)="toggleOrder(order._id)">
+        <div class="order-id-group">
+          <div class="order-thumb-icon">
+            <i class="fas fa-shopping-bag"></i>
+          </div>
+
+          <div class="order-main-meta">
+            <div class="status-and-id">
+              <span class="status-badge" [ngClass]="order.isDelivered ? 'delivered' : (order.isPaid ? 'on-the-way' : 'processing')">
+                <span class="dot-indicator"></span>
+                {{ order.isDelivered ? 'Delivered' : (order.isPaid ? 'On the way' : 'Processing') }}
+              </span>
+              <strong class="order-id-text">#{{ order.id || order._id.substring(order._id.length - 5) }}</strong>
+            </div>
+
+            <div class="order-sub-meta">
+              <span><i class="far fa-calendar-alt"></i> {{ order.createdAt | date:'mediumDate' }}</span>
+              <span>•</span>
+              <span><i class="fas fa-box"></i> {{ order.cartItems.length }} {{ order.cartItems.length === 1 ? 'Item' : 'Items' }}</span>
+              <span *ngIf="order.shippingAddress?.city">•</span>
+              <span *ngIf="order.shippingAddress?.city"><i class="fas fa-map-marker-alt"></i> {{ order.shippingAddress.city }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-price-group">
+          <span class="order-total-price">{{ order.totalOrderPrice }} EGP</span>
+          <button type="button" class="btn-toggle-details">
+            <span *ngIf="!isExpanded(order._id)">Details <i class="fas fa-chevron-down"></i></span>
+            <span *ngIf="isExpanded(order._id)">Hide <i class="fas fa-chevron-up"></i></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Expandable Details Section -->
+      <div *ngIf="isExpanded(order._id)" class="order-expanded-details">
+        
+        <!-- Order Items -->
+        <div class="order-items-box">
+          <h4 class="details-section-title"><i class="fas fa-box icon-green"></i> Order Items</h4>
+          
+          <div class="order-items-grid">
+            <div *ngFor="let item of order.cartItems" class="item-line">
+              <div class="item-thumb">
+                <img [src]="item.product.imageCover" [alt]="item.product.title" />
+              </div>
+              <div class="item-desc">
+                <span class="item-title">{{ item.product.title }}</span>
+                <span class="item-calc">{{ item.count }} × {{ item.price }} EGP</span>
+              </div>
+              <strong class="item-line-total">{{ item.count * item.price }} EGP</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2 Information Cards: Delivery Address & Summary -->
+        <div class="order-info-cards-row">
+          
+          <!-- Delivery Address Card -->
+          <div class="info-sub-card">
+            <h5 class="sub-card-title"><i class="fas fa-map-marker-alt icon-blue"></i> Delivery Address</h5>
+            <div class="sub-card-content" *ngIf="order.shippingAddress">
+              <strong>{{ order.shippingAddress.city }}</strong>
+              <p>{{ order.shippingAddress.details }}</p>
+              <span class="phone-line"><i class="fas fa-phone"></i> {{ order.shippingAddress.phone }}</span>
+            </div>
+          </div>
+
+          <!-- Order Summary Card -->
+          <div class="info-sub-card summary-bg">
+            <h5 class="sub-card-title"><i class="fas fa-receipt icon-orange"></i> Order Summary</h5>
+            <div class="sub-card-content">
+              <div class="summary-kv">
+                <span>Subtotal</span>
+                <strong>{{ order.totalOrderPrice }} EGP</strong>
+              </div>
+              <div class="summary-kv">
+                <span>Shipping</span>
+                <span class="text-success">Free</span>
+              </div>
+              <div class="summary-kv total-kv">
+                <span>Total</span>
+                <strong>{{ order.totalOrderPrice }} EGP</strong>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

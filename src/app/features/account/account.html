@@ -1,0 +1,304 @@
+<div class="account-page">
+
+  <!-- ================= Green Header Banner ================= -->
+  <div class="page-header-green">
+    <div class="container">
+      <span class="breadcrumb"><a routerLink="/">Home</a> / My Account</span>
+      <div class="header-title-box">
+        <div class="header-icon-badge">
+          <i class="fas fa-user"></i>
+        </div>
+        <div>
+          <h1>My Account</h1>
+          <p>Manage your addresses and account settings</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container account-layout">
+
+    <!-- ================= Left Sidebar Menu ================= -->
+    <aside class="account-sidebar">
+      <h3 class="sidebar-heading">My Account</h3>
+
+      <nav class="sidebar-nav">
+        <button 
+          type="button" 
+          class="sidebar-item" 
+          [class.active]="activeTab === 'addresses'"
+          (click)="switchTab('addresses')"
+        >
+          <div class="item-left">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>My Addresses</span>
+          </div>
+          <i class="fas fa-chevron-right item-arrow"></i>
+        </button>
+
+        <button 
+          type="button" 
+          class="sidebar-item" 
+          [class.active]="activeTab === 'settings'"
+          (click)="switchTab('settings')"
+        >
+          <div class="item-left">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+          </div>
+          <i class="fas fa-chevron-right item-arrow"></i>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- ================= Right Content Area ================= -->
+    <main class="account-main">
+
+      <!-- ================= TAB 1: My Addresses (Screenshot 12) ================= -->
+      <section *ngIf="activeTab === 'addresses'" class="tab-section">
+        
+        <div class="section-top-bar">
+          <div>
+            <h2>My Addresses</h2>
+            <p>Manage your saved delivery addresses</p>
+          </div>
+          <button type="button" class="btn-primary-green" (click)="openAddAddressModal()">
+            <i class="fas fa-plus"></i> Add Address
+          </button>
+        </div>
+
+        <div *ngIf="isLoadingAddresses" class="loading-state">
+          <div class="spinner-border text-success"></div>
+          <p>Loading addresses...</p>
+        </div>
+
+        <div *ngIf="!isLoadingAddresses && addresses.length === 0" class="empty-state">
+          <i class="fas fa-map-marker-alt"></i>
+          <h3>No saved addresses</h3>
+          <p>You haven't saved any delivery addresses yet.</p>
+        </div>
+
+        <div *ngIf="!isLoadingAddresses && addresses.length > 0" class="addresses-list">
+          <div *ngFor="let addr of addresses" class="address-card-row">
+            <div class="addr-card-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div class="addr-card-details">
+              <h4>{{ addr.name || addr.city }}</h4>
+              <p class="addr-desc">{{ addr.details }}</p>
+              <div class="addr-card-meta">
+                <span><i class="fas fa-phone"></i> {{ addr.phone }}</span>
+                <span><i class="fas fa-city"></i> {{ addr.city }}</span>
+              </div>
+            </div>
+            <div class="addr-card-actions">
+              <button type="button" class="btn-action-icon" (click)="deleteAddress(addr._id)" title="Delete Address">
+                <i class="far fa-trash-alt text-danger"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================= TAB 2: Settings (Screenshot 13) ================= -->
+      <section *ngIf="activeTab === 'settings'" class="tab-section settings-section">
+        
+        <div class="section-top-bar">
+          <div>
+            <h2>Account Settings</h2>
+            <p>Update your profile information and change your password</p>
+          </div>
+        </div>
+
+        <!-- Card 1: Profile Information -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="card-icon-circle green">
+              <i class="fas fa-user"></i>
+            </div>
+            <div>
+              <h3>Profile Information</h3>
+              <p>Update your personal details</p>
+            </div>
+          </div>
+
+          <div class="settings-card-body">
+            <div *ngIf="profileSuccessMsg" class="alert-success-msg">
+              <i class="fas fa-check-circle"></i> {{ profileSuccessMsg }}
+            </div>
+            <div *ngIf="profileErrorMsg" class="alert-error-msg">
+              <i class="fas fa-exclamation-circle"></i> {{ profileErrorMsg }}
+            </div>
+
+            <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="settings-form">
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" formControlName="name" class="form-control" />
+                <div *ngIf="profileForm.get('name')?.touched && profileForm.get('name')?.invalid" class="error-msg">
+                  <span>Name is required</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" formControlName="email" class="form-control" />
+                <div *ngIf="profileForm.get('email')?.touched && profileForm.get('email')?.invalid" class="error-msg">
+                  <span>Valid email is required</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" formControlName="phone" placeholder="01xxxxxxxxx" class="form-control" />
+              </div>
+
+              <button type="submit" class="btn-primary-green" [disabled]="isSavingProfile">
+                <span *ngIf="!isSavingProfile">Save Changes</span>
+                <span *ngIf="isSavingProfile"><span class="spinner-border spinner-border-sm"></span> Saving...</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Card 2: Account Information -->
+        <div class="settings-card">
+          <div class="settings-card-body account-info-body">
+            <h3>Account Information</h3>
+            <div class="account-info-row">
+              <span class="info-label">User ID</span>
+              <span class="info-value">{{ authService.currentUser()?.id || authService.currentUser()?._id || 'USR-78219' }}</span>
+            </div>
+            <div class="account-info-row">
+              <span class="info-label">Role</span>
+              <span class="role-pill">User</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Change Password -->
+        <div class="settings-card">
+          <div class="settings-card-header">
+            <div class="card-icon-circle orange">
+              <i class="fas fa-lock"></i>
+            </div>
+            <div>
+              <h3>Change Password</h3>
+              <p>Update your account password</p>
+            </div>
+          </div>
+
+          <div class="settings-card-body">
+            <div *ngIf="passwordSuccessMsg" class="alert-success-msg">
+              <i class="fas fa-check-circle"></i> {{ passwordSuccessMsg }}
+            </div>
+            <div *ngIf="passwordErrorMsg" class="alert-error-msg">
+              <i class="fas fa-exclamation-circle"></i> {{ passwordErrorMsg }}
+            </div>
+
+            <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="settings-form">
+              <div class="form-group">
+                <label>Current Password</label>
+                <div class="input-with-eye">
+                  <input 
+                    [type]="showCurrentPass ? 'text' : 'password'" 
+                    formControlName="currentPassword" 
+                    placeholder="Enter your current password" 
+                    class="form-control" 
+                  />
+                  <i class="far toggle-eye" [ngClass]="showCurrentPass ? 'fa-eye-slash' : 'fa-eye'" (click)="showCurrentPass = !showCurrentPass"></i>
+                </div>
+                <div *ngIf="passwordForm.get('currentPassword')?.touched && passwordForm.get('currentPassword')?.invalid" class="error-msg">
+                  <span>Current password is required</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>New Password</label>
+                <div class="input-with-eye">
+                  <input 
+                    [type]="showNewPass ? 'text' : 'password'" 
+                    formControlName="password" 
+                    placeholder="Enter your new password" 
+                    class="form-control" 
+                  />
+                  <i class="far toggle-eye" [ngClass]="showNewPass ? 'fa-eye-slash' : 'fa-eye'" (click)="showNewPass = !showNewPass"></i>
+                </div>
+                <span class="helper-text">Must be at least 6 characters</span>
+                <div *ngIf="passwordForm.get('password')?.touched && passwordForm.get('password')?.invalid" class="error-msg">
+                  <span>New password must be at least 6 characters</span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Confirm New Password</label>
+                <div class="input-with-eye">
+                  <input 
+                    [type]="showConfirmPass ? 'text' : 'password'" 
+                    formControlName="rePassword" 
+                    placeholder="Confirm your new password" 
+                    class="form-control" 
+                  />
+                  <i class="far toggle-eye" [ngClass]="showConfirmPass ? 'fa-eye-slash' : 'fa-eye'" (click)="showConfirmPass = !showConfirmPass"></i>
+                </div>
+                <div *ngIf="passwordForm.get('rePassword')?.touched && passwordForm.get('rePassword')?.invalid" class="error-msg">
+                  <span *ngIf="passwordForm.get('rePassword')?.errors?.['required']">Confirm password is required</span>
+                  <span *ngIf="passwordForm.get('rePassword')?.errors?.['mismatch']">Passwords do not match</span>
+                </div>
+              </div>
+
+              <button type="submit" class="btn-orange" [disabled]="isSavingPassword">
+                <span *ngIf="!isSavingPassword">Change Password</span>
+                <span *ngIf="isSavingPassword"><span class="spinner-border spinner-border-sm"></span> Updating...</span>
+              </button>
+            </form>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ================= Add Address Modal ================= -->
+  <div class="modal-backdrop" *ngIf="showAddAddressModal" (click)="closeAddAddressModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Add New Address</h3>
+        <button class="btn-close-modal" (click)="closeAddAddressModal()">&times;</button>
+      </div>
+
+      <form [formGroup]="addressForm" (ngSubmit)="saveAddress()" class="modal-body modal-form">
+        <div class="form-group">
+          <label>Address Name *</label>
+          <input type="text" formControlName="name" placeholder="Home, Office, etc." class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label>City *</label>
+          <input type="text" formControlName="city" placeholder="Cairo, Alexandria..." class="form-control" />
+        </div>
+
+        <div class="form-group">
+          <label>Detailed Address *</label>
+          <textarea formControlName="details" rows="3" placeholder="Street, building, floor..." class="form-control"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="tel" formControlName="phone" placeholder="01xxxxxxxxx" class="form-control" />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" (click)="closeAddAddressModal()">Cancel</button>
+          <button type="submit" class="btn-primary-green" [disabled]="isSavingAddress">
+            <span *ngIf="!isSavingAddress">Save Address</span>
+            <span *ngIf="isSavingAddress"><span class="spinner-border spinner-border-sm"></span> Saving...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>

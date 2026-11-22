@@ -1,0 +1,237 @@
+<div class="home-page">
+
+  <!-- ================= Hero Banner Slider ================= -->
+  <section class="hero-slider-section">
+    <div class="hero-slider">
+      <div 
+        class="slide-item active" 
+        [style.background-image]="'linear-gradient(rgba(10, 173, 10, 0.75), rgba(5, 150, 105, 0.85)), url(' + slides[currentSlide].image + ')'"
+      >
+        <div class="container hero-content">
+          <span class="hero-badge">{{ slides[currentSlide].badge }}</span>
+          <h1 class="hero-title">{{ slides[currentSlide].title }}</h1>
+          <p class="hero-subtitle">{{ slides[currentSlide].subtitle }}</p>
+          <div class="hero-actions">
+            <a [routerLink]="slides[currentSlide].link" class="btn-hero-primary">Shop Now</a>
+            <a routerLink="/shop" class="btn-hero-secondary">View Deals</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Arrows -->
+      <button class="slider-arrow prev-arrow" (click)="prevSlide()" aria-label="Previous Slide">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button class="slider-arrow next-arrow" (click)="nextSlide()" aria-label="Next Slide">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+      <!-- Dots Indicators -->
+      <div class="slider-dots">
+        <span 
+          *ngFor="let slide of slides; let i = index" 
+          class="dot" 
+          [class.active]="i === currentSlide" 
+          (click)="goToSlide(i)"
+        ></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 4 Feature Badges ================= -->
+  <section class="container features-cards-section">
+    <div class="features-cards-grid">
+      <div class="feature-card">
+        <div class="feature-card-icon blue-bg">
+          <i class="fas fa-truck"></i>
+        </div>
+        <div class="feature-card-info">
+          <h4>Free Shipping</h4>
+          <p>On orders over 500 EGP</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-card-icon green-bg">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="feature-card-info">
+          <h4>Secure Payment</h4>
+          <p>100% secure transactions</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-card-icon orange-bg">
+          <i class="fas fa-undo-alt"></i>
+        </div>
+        <div class="feature-card-info">
+          <h4>Easy Returns</h4>
+          <p>14-day return policy</p>
+        </div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-card-icon purple-bg">
+          <i class="fas fa-headset"></i>
+        </div>
+        <div class="feature-card-info">
+          <h4>24/7 Support</h4>
+          <p>Dedicated support team</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Shop By Category ================= -->
+  <section class="container categories-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="bar-accent"></span> Shop By <span class="highlight">Category</span>
+      </h2>
+      <a routerLink="/categories" class="view-all-link">
+        View All Categories <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div *ngIf="isLoadingCategories" class="loading-state">
+      <div class="spinner-border text-success"></div>
+      <p>Loading categories...</p>
+    </div>
+
+    <div *ngIf="!isLoadingCategories" class="categories-circles-grid">
+      <a 
+        *ngFor="let cat of categories.slice(0, 10)" 
+        [routerLink]="['/shop']" 
+        [queryParams]="{ category: cat._id }" 
+        class="category-circle-card"
+      >
+        <div class="category-circle-img">
+          <img [src]="cat.image" [alt]="cat.name" loading="lazy" />
+        </div>
+        <span class="category-name">{{ cat.name }}</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ================= Promo Banners (2 Cards) ================= -->
+  <section class="container promos-section">
+    <div class="promos-grid">
+      <!-- Promo 1 -->
+      <div class="promo-banner-card promo-green">
+        <div class="promo-badge-tag">Deal of the Day</div>
+        <h3>Fresh Organic Fruits</h3>
+        <p>Get up to 40% off on selected organic fruits</p>
+        <div class="promo-discount-row">
+          <span class="discount-big">40% OFF</span>
+          <span class="promo-code">Use code: <strong>ORGANIC40</strong></span>
+        </div>
+        <a routerLink="/shop" class="btn-promo-action">Shop Now <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <!-- Promo 2 -->
+      <div class="promo-banner-card promo-orange">
+        <div class="promo-badge-tag">New Arrivals</div>
+        <h3>Exotic Vegetables</h3>
+        <p>Discover our latest collection of premium vegetables</p>
+        <div class="promo-discount-row">
+          <span class="discount-big">25% OFF</span>
+          <span class="promo-code">Use code: <strong>FRESH25</strong></span>
+        </div>
+        <a routerLink="/shop" class="btn-promo-action">Explore Now <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= Featured Products ================= -->
+  <section class="container products-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="bar-accent"></span> Featured <span class="highlight">Products</span>
+      </h2>
+      <a routerLink="/products" class="view-all-link">
+        View All Products <i class="fas fa-arrow-right"></i>
+      </a>
+    </div>
+
+    <div *ngIf="isLoadingProducts" class="loading-state">
+      <div class="spinner-border text-success"></div>
+      <p>Loading featured products...</p>
+    </div>
+
+    <div *ngIf="!isLoadingProducts" class="products-grid-5">
+      <div 
+        *ngFor="let product of featuredProducts" 
+        class="product-card"
+        [routerLink]="['/product-details', product._id]"
+      >
+        <!-- Discount Badge -->
+        <span *ngIf="product.priceAfterDiscount && product.priceAfterDiscount < product.price" class="badge-discount">
+          -{{ ((product.price - product.priceAfterDiscount) / product.price * 100) | number:'1.0-0' }}%
+        </span>
+
+        <!-- Card Quick Action Buttons -->
+        <div class="card-actions">
+          <button 
+            type="button" 
+            class="action-icon-btn" 
+            [class.active-wishlist]="wishlistService.isInWishlist(product._id)"
+            (click)="toggleWishlist(product, $event)"
+            title="Wishlist"
+          >
+            <i [class]="wishlistService.isInWishlist(product._id) ? 'fas fa-heart' : 'far fa-heart'"></i>
+          </button>
+          <button type="button" class="action-icon-btn" title="Compare">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+          <button type="button" class="action-icon-btn" title="Quick View">
+            <i class="far fa-eye"></i>
+          </button>
+        </div>
+
+        <!-- Product Image -->
+        <div class="product-img-box">
+          <img [src]="product.imageCover" [alt]="product.title" loading="lazy" />
+        </div>
+
+        <!-- Category -->
+        <span class="product-category">{{ product.category.name }}</span>
+
+
+        <!-- Title -->
+        <h4 class="product-title" [title]="product.title">{{ product.title }}</h4>
+
+        <!-- Rating -->
+        <div class="product-rating">
+          <i class="fas fa-star"></i>
+          <span>{{ product.ratingsAverage || 4.5 }}</span>
+          <span class="text-muted">({{ product.ratingsQuantity || 10 }})</span>
+        </div>
+
+        <!-- Footer: Price & Add to Cart Circle -->
+        <div class="product-footer">
+          <div class="price-box">
+            <span class="current-price">
+              {{ product.priceAfterDiscount || product.price }} EGP
+            </span>
+            <span *ngIf="product.priceAfterDiscount && product.priceAfterDiscount < product.price" class="old-price">
+              {{ product.price }} EGP
+            </span>
+          </div>
+
+          <button 
+            type="button" 
+            class="btn-add-cart-circle" 
+            [disabled]="addingToCartId === product._id"
+            (click)="addToCart(product, $event)"
+            title="Add to Cart"
+          >
+            <i *ngIf="addingToCartId !== product._id" class="fas fa-plus"></i>
+            <span *ngIf="addingToCartId === product._id" class="spinner-border spinner-border-sm"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>

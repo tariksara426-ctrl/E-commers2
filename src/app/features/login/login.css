@@ -1,0 +1,292 @@
+/* الحاوية الرئيسية لتوسيط وتنسيق الصفحة */
+.signin-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+}
+
+/* الكارت الأساسي الذي يجمع الجزأين الأيمن والأيسر */
+.signin-card {
+  display: flex;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  max-width: 1050px;
+  overflow: hidden;
+}
+
+/* ================= الجزء الأيسر (الترويجي) ================= */
+.signin-left {
+  flex: 1;
+  background-color: #ffffff;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-right: 1px solid #f0f0f0;
+}
+
+.promo-img-container {
+  width: 100%;
+  max-height: 320px;
+  margin-bottom: 25px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.promo-img {
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.signin-left h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 12px;
+}
+
+.signin-left p {
+  color: #6c757d;
+  font-size: 0.95rem;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+.promo-badges {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.promo-badges span {
+  font-size: 0.85rem;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+}
+
+.icon-green {
+  color: #0aad0a;
+}
+
+/* ================= الجزء الأيمن (نموذج الدخول) ================= */
+.signin-right {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* رأس النموذج والشعار */
+.form-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.logo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.logo-icon {
+  font-size: 1.6rem;
+  color: #0aad0a;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #212529;
+}
+
+.form-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+/* أزرار الدخول السريع (Google & Facebook) */
+.social-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.social-btn {
+  width: 100%;
+  padding: 11px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  background: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.social-btn:hover {
+  background-color: #f8f9fa;
+}
+
+.google-color {
+  color: #db4437;
+}
+
+.fb-color {
+  color: #4267B2;
+}
+
+/* الفاصل (OR CONTINUE WITH EMAIL) */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.divider span {
+  padding: 0 10px;
+  font-size: 0.75rem;
+  color: #adb5bd;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+/* الحقول والمدخلات */
+.signin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #343a40;
+}
+
+.field-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.forgot-pass {
+  font-size: 0.8rem;
+  color: #0aad0a;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-pass:hover {
+  text-decoration: underline;
+}
+
+.input-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  color: #adb5bd;
+  font-size: 0.95rem;
+}
+
+.toggle-eye {
+  position: absolute;
+  right: 14px;
+  color: #adb5bd;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.input-box input {
+  width: 100%;
+  padding: 12px 14px 12px 42px;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-box input:focus {
+  border-color: #0aad0a;
+  box-shadow: 0 0 0 3px rgba(10, 173, 10, 0.1);
+}
+
+/* خيار تذكرني */
+.remember-me {
+  font-size: 0.85rem;
+  color: #495057;
+}
+
+.remember-me label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* زر التسجيل الأساسي */
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #0aad0a;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;}
+
+  .error-text {
+  color: #dc3545; /* لون أحمر واضح ومتناسق */
+  font-size: 0.75rem;
+  margin-top: 4px;
+  font-weight: 500;
+  display: block;
+}

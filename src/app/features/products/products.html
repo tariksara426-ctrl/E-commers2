@@ -1,0 +1,109 @@
+<div class="all-products-page">
+
+  <!-- ================= Green Header Banner ================= -->
+  <div class="page-header-green">
+    <div class="container">
+      <span class="breadcrumb"><a routerLink="/">Home</a> / All Products</span>
+      <div class="header-title-box">
+        <div class="header-icon-badge">
+          <i class="fas fa-boxes"></i>
+        </div>
+        <div>
+          <h1>All Products</h1>
+          <p>Explore our complete product collection</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Products Content ================= -->
+  <div class="container products-container">
+
+    <div class="products-top-info" *ngIf="!isLoading">
+      <span class="count-label">Showing {{ productsList.length }} products</span>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner-border text-success"></div>
+      <p>Loading products...</p>
+    </div>
+
+    <!-- 5-Column Products Grid -->
+    <div *ngIf="!isLoading" class="products-grid-5">
+      <div 
+        *ngFor="let product of productsList" 
+        class="product-card"
+        [routerLink]="['/product-details', product._id]"
+      >
+        <!-- Discount Badge -->
+        <span *ngIf="product.priceAfterDiscount && product.priceAfterDiscount < product.price" class="badge-discount">
+          -{{ ((product.price - product.priceAfterDiscount) / product.price * 100) | number:'1.0-0' }}%
+        </span>
+
+        <!-- Card Quick Action Buttons -->
+        <div class="card-actions">
+          <button 
+            type="button" 
+            class="action-icon-btn" 
+            [class.active-wishlist]="wishlistService.isInWishlist(product._id)"
+            (click)="toggleWishlist(product, $event)"
+            title="Wishlist"
+          >
+            <i [class]="wishlistService.isInWishlist(product._id) ? 'fas fa-heart' : 'far fa-heart'"></i>
+          </button>
+          <button type="button" class="action-icon-btn" title="Compare">
+            <i class="fas fa-sync-alt"></i>
+          </button>
+          <button type="button" class="action-icon-btn" title="Quick View">
+            <i class="far fa-eye"></i>
+          </button>
+        </div>
+
+        <!-- Product Image -->
+        <div class="product-img-box">
+          <img [src]="product.imageCover" [alt]="product.title" loading="lazy" />
+        </div>
+
+        <!-- Category -->
+        <span class="product-category">{{ product.category.name }}</span>
+
+
+        <!-- Title -->
+        <h4 class="product-title" [title]="product.title">{{ product.title }}</h4>
+
+        <!-- Rating -->
+        <div class="product-rating">
+          <i class="fas fa-star"></i>
+          <span>{{ product.ratingsAverage || 4.5 }}</span>
+          <span class="text-muted">({{ product.ratingsQuantity || 10 }})</span>
+        </div>
+
+        <!-- Footer: Price & Add to Cart Circle -->
+        <div class="product-footer">
+          <div class="price-box">
+            <span class="current-price">
+              {{ product.priceAfterDiscount || product.price }} EGP
+            </span>
+            <span *ngIf="product.priceAfterDiscount && product.priceAfterDiscount < product.price" class="old-price">
+              {{ product.price }} EGP
+            </span>
+          </div>
+
+          <button 
+            type="button" 
+            class="btn-add-cart-circle" 
+            [disabled]="addingToCartId === product._id"
+            (click)="addToCart(product, $event)"
+            title="Add to Cart"
+          >
+            <i *ngIf="addingToCartId !== product._id" class="fas fa-plus"></i>
+            <span *ngIf="addingToCartId === product._id" class="spinner-border spinner-border-sm"></span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>

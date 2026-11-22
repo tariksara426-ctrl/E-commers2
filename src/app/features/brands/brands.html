@@ -1,0 +1,47 @@
+<div class="brands-page">
+  <!-- الهيدر العلوي الموف -->
+  <div class="brands-header">
+    <div class="container">
+      <span class="breadcrumb">Home / Brands</span>
+      <div class="header-title-box">
+        <div class="header-icon">
+          <i class="fas fa-tags"></i>
+        </div>
+        <div>
+          <h1>Top Brands</h1>
+          <p>Shop from your favorite brands</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- محتوى شبكة البراندات -->
+  <div class="container brands-container">
+    
+    <!-- حالة التحميل (Loading) -->
+    <div *ngIf="isLoading" class="loading-spinner">
+      <p>Loading brands...</p>
+    </div>
+
+    <!-- شبكة عرض البراندات -->
+    <!-- <div *ngIf="!isLoading" class="brands-grid">
+      <div *ngFor="let brand of brandsList" class="brand-card">
+        <div class="brand-img-box">
+          <img [src]="brand.image" [alt]="brand.name" />
+        </div>
+        <p class="brand-name">{{ brand.name }}</p>
+      </div>
+    </div> -->
+
+    <div *ngIf="!isLoading" class="brands-grid">
+  <!-- ضفنا routerLink هنا وبنبعت معاه الـ ID بتاع البراند -->
+  <div *ngFor="let brand of brandsList" [routerLink]="['/brand-details', brand._id]" class="brand-card">
+    <div class="brand-img-box">
+      <img [src]="brand.image" [alt]="brand.name" />
+    </div>
+    <p class="brand-name">{{ brand.name }}</p>
+  </div>
+</div>
+
+  </div>
+</div>

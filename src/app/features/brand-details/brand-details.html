@@ -1,0 +1,84 @@
+<!-- البانر الأخضر العلوي -->
+<div class="brand-hero-banner">
+  <div class="container">
+    
+    <!-- مسار التنقل (Breadcrumb) -->
+    <nav class="breadcrumb-nav">
+      <a routerLink="/home">Home</a> 
+      <span class="separator">/</span> 
+      <a routerLink="/brands">Brands</a> 
+      <span class="separator">/</span> 
+      <span class="current">{{ brandDetails?.name }}</span>
+    </nav>
+
+    <!-- محتوى البانر (اللوجو وبجانبه الاسم ووصف مبسط) -->
+    <div class="brand-hero-content" *ngIf="brandDetails">
+      <div class="brand-logo-box">
+        <img [src]="brandDetails.image" [alt]="brandDetails.name" />
+      </div>
+      <div class="brand-titles">
+        <h1>{{ brandDetails.name }}</h1>
+        <p>Shop {{ brandDetails.name }} products</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- شبكة المنتجات -->
+<div class="products-grid">
+  <div *ngFor="let product of brandProducts" class="product-card">
+    
+    <!-- نسبة الخصم (لو موجودة) -->
+    <div *ngIf="product.priceAfterDiscount" class="discount-badge">
+      -20%
+    </div>
+
+    <!-- أزرار الإجراءات العلوية (المفضلة، التحديث، العرض) -->
+    <div class="product-actions">
+      <button class="action-btn"><i class="far fa-heart"></i></button>
+      <button class="action-btn"><i class="fas fa-sync-alt"></i></button>
+      <button class="action-btn"><i class="far fa-eye"></i></button>
+    </div>
+
+    <!-- صورة المنتج -->
+    <div class="product-img-wrapper">
+      <img [src]="product.imageCover" [alt]="product.title" />
+    </div>
+
+    <!-- معلومات المنتج -->
+    <div class="product-info">
+      <span class="category-name">{{ product.category?.name }}</span>
+      <h3 class="product-title" [title]="product.title">{{ product.title }}</h3>
+      
+      <!-- التقييمات -->
+      <div class="rating-box">
+        <div class="stars">
+          <i class="fas fa-star" *ngFor="let star of [1,2,3,4,5]"></i>
+        </div>
+        <span class="rating-count">{{ product.ratingsAverage || 0 }} (1)</span>
+      </div>
+
+      <!-- السعر وزر الإضافة (+) -->
+      <div class="product-footer">
+        <div class="price-box">
+          <!-- لو فيه سعر بعد الخصم -->
+          <ng-container *ngIf="product.priceAfterDiscount; else normalPrice">
+            <span class="current-price text-green-600">{{ product.priceAfterDiscount }} EGP</span>
+            <span class="old-price">{{ product.price }} EGP</span>
+          </ng-container>
+          <!-- السعر العادي -->
+          <ng-template #normalPrice>
+            <span class="current-price">{{ product.price }} EGP</span>
+          </ng-template>
+        </div>
+
+        <!-- زر الإضافة الدائري الأخضر -->
+        <button class="add-to-cart-btn" (click)="addToCart(product._id)">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

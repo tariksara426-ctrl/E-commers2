@@ -1,0 +1,110 @@
+<div class="wishlist-page container">
+
+  <!-- Breadcrumb -->
+  <div class="wishlist-breadcrumb">
+    <span class="breadcrumb"><a routerLink="/">Home</a> / Wishlist</span>
+  </div>
+
+  <!-- Header Banner Box -->
+  <div class="wishlist-header-box">
+    <div class="header-heart-icon">
+      <i class="fas fa-heart"></i>
+    </div>
+    <div>
+      <h1>My Wishlist</h1>
+      <p>{{ wishlistItems.length }} items saved</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-border text-success"></div>
+    <p>Loading your saved items...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && wishlistItems.length === 0" class="empty-state">
+    <i class="far fa-heart"></i>
+    <h3>Your wishlist is empty</h3>
+    <p>Save items you like and find them easily whenever you're ready to buy.</p>
+    <a routerLink="/shop" class="btn-primary-green">
+      <i class="fas fa-shopping-bag"></i> Discover Products
+    </a>
+  </div>
+
+  <!-- Wishlist Table / List -->
+  <div *ngIf="!isLoading && wishlistItems.length > 0" class="wishlist-table-card">
+    
+    <!-- Table Header -->
+    <div class="table-header-row">
+      <div class="col-product">Product</div>
+      <div class="col-price">Price</div>
+      <div class="col-status">Status</div>
+      <div class="col-actions">Actions</div>
+    </div>
+
+    <!-- Rows -->
+    <div *ngFor="let item of wishlistItems" class="table-body-row">
+      
+      <!-- Product Info -->
+      <div class="col-product product-info-cell">
+        <div class="item-thumb-box" [routerLink]="['/product-details', item._id]">
+          <img [src]="item.imageCover" [alt]="item.title" />
+        </div>
+        <div class="item-text-info">
+          <h4 class="item-title" [routerLink]="['/product-details', item._id]">{{ item.title }}</h4>
+          <span class="item-category">{{ item.category.name }}</span>
+        </div>
+
+      </div>
+
+      <!-- Price -->
+      <div class="col-price price-cell">
+        <span class="price-val">{{ item.priceAfterDiscount || item.price }} EGP</span>
+        <span *ngIf="item.priceAfterDiscount && item.priceAfterDiscount < item.price" class="old-price-val">
+          {{ item.price }} EGP
+        </span>
+      </div>
+
+      <!-- Status -->
+      <div class="col-status status-cell">
+        <span class="stock-text"><i class="fas fa-check"></i> In Stock</span>
+      </div>
+
+      <!-- Actions -->
+      <div class="col-actions actions-cell">
+        <button 
+          type="button" 
+          class="btn-add-cart" 
+          [disabled]="addingToCartId === item._id"
+          (click)="addToCart(item)"
+        >
+          <i class="fas fa-shopping-cart"></i>
+          <span *ngIf="addingToCartId !== item._id">Add to Cart</span>
+          <span *ngIf="addingToCartId === item._id">Adding...</span>
+        </button>
+
+        <button 
+          type="button" 
+          class="btn-remove-item" 
+          [disabled]="removingId === item._id"
+          (click)="removeFromWishlist(item)"
+          title="Remove from Wishlist"
+        >
+          <i *ngIf="removingId !== item._id" class="far fa-trash-alt"></i>
+          <span *ngIf="removingId === item._id" class="spinner-border spinner-border-sm"></span>
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Bottom Link -->
+  <div class="continue-shopping-row" *ngIf="!isLoading && wishlistItems.length > 0">
+    <a routerLink="/shop" class="continue-link">
+      <i class="fas fa-arrow-left"></i> Continue Shopping
+    </a>
+  </div>
+
+</div>

@@ -1,0 +1,114 @@
+<header class="navbar-wrapper">
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container top-bar-content">
+      <div class="top-left">
+        <span class="info-item">
+          <i class="fas fa-truck icon-green"></i> Free Shipping on Orders 500 EGP
+        </span>
+        <span class="info-item">
+          <i class="fas fa-gift icon-green"></i> New Arrivals Daily
+        </span>
+      </div>
+      <div class="top-right">
+        <span class="info-item"><i class="fas fa-phone"></i> +1 (800) 123-4567</span>
+        <span class="info-item"><i class="far fa-envelope"></i> support@freshcart.com</span>
+        <span class="divider">|</span>
+        
+        <ng-container *ngIf="authService.isLoggedIn(); else guestLinks">
+          <a routerLink="/account" class="auth-link">
+            <i class="far fa-user"></i> {{ authService.currentUser()?.name || 'Account' }}
+          </a>
+          <button (click)="logout()" class="auth-link btn-signout" title="Sign Out">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+          </button>
+        </ng-container>
+        <ng-template #guestLinks>
+          <a routerLink="/login" class="auth-link"><i class="far fa-user"></i> Sign In</a>
+          <a routerLink="/register" class="auth-link"><i class="fas fa-user-plus"></i> Sign Up</a>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navbar -->
+  <nav class="main-navbar">
+    <div class="container main-navbar-content">
+      <!-- Logo -->
+      <a routerLink="/" class="logo">
+        <i class="fas fa-shopping-cart logo-icon"></i>
+        <span class="logo-text">FreshCart</span>
+      </a>
+
+      <!-- Search Box -->
+      <div class="search-box">
+        <input 
+          type="text" 
+          placeholder="Search for products, brands and more..." 
+          [(ngModel)]="searchQuery" 
+          (keyup.enter)="onSearch()" 
+        />
+        <button class="search-btn" (click)="onSearch()" aria-label="Search">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Links -->
+      <ul class="nav-links">
+        <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
+        <li><a routerLink="/shop" routerLinkActive="active">Shop</a></li>
+        <li><a routerLink="/categories" routerLinkActive="active">Categories</a></li>
+        <li><a routerLink="/brands" routerLinkActive="active">Brands</a></li>
+      </ul>
+
+      <!-- Right Actions -->
+      <div class="nav-actions">
+        <!-- Support Pill -->
+        <div class="support-info">
+          <div class="support-icon">
+            <i class="fas fa-headset"></i>
+          </div>
+          <div class="support-text">
+            <span>Support</span>
+            <strong>24/7 Help</strong>
+          </div>
+        </div>
+
+        <span class="divider">|</span>
+
+        <!-- Wishlist -->
+        <a routerLink="/wishlist" class="icon-btn" title="Wishlist">
+          <i class="far fa-heart"></i>
+          <span *ngIf="wishlistService.wishlistCount() > 0" class="badge-count">
+            {{ wishlistService.wishlistCount() }}
+          </span>
+        </a>
+
+        <!-- Cart -->
+        <a routerLink="/cart" class="icon-btn" title="Shopping Cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span *ngIf="cartService.cartCount() > 0" class="badge-count">
+            {{ cartService.cartCount() }}
+          </span>
+        </a>
+
+        <!-- Orders -->
+        <a *ngIf="authService.isLoggedIn()" routerLink="/orders" class="icon-btn" title="My Orders">
+          <i class="fas fa-box"></i>
+        </a>
+
+        <!-- Sign In Button / Profile Pill -->
+        <ng-container *ngIf="!authService.isLoggedIn(); else userPill">
+          <a routerLink="/login" class="btn-signin">
+            <i class="far fa-user"></i> Sign In
+          </a>
+        </ng-container>
+        <ng-template #userPill>
+          <a routerLink="/account" class="btn-signin btn-user-pill">
+            <i class="fas fa-user-circle"></i> {{ authService.currentUser()?.name?.split(' ')?.[0] || 'Profile' }}
+          </a>
+        </ng-template>
+      </div>
+    </div>
+  </nav>
+</header>

@@ -1,0 +1,214 @@
+<div class="cart-page container">
+
+  <!-- Breadcrumbs -->
+  <div class="cart-breadcrumb">
+    <span class="breadcrumb"><a routerLink="/">Home</a> / Shopping Cart</span>
+  </div>
+
+  <!-- Header Banner Box -->
+  <div class="cart-header-box">
+    <div class="header-cart-icon">
+      <i class="fas fa-shopping-cart"></i>
+    </div>
+    <div>
+      <h1>Shopping Cart</h1>
+      <p>You have {{ numOfCartItems }} {{ numOfCartItems === 1 ? 'item' : 'items' }} in your cart</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-border text-success"></div>
+    <p>Loading your cart...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && cartProducts.length === 0" class="empty-state">
+    <i class="fas fa-shopping-bag"></i>
+    <h3>Your cart is empty</h3>
+    <p>Looks like you haven't added any products to your cart yet.</p>
+    <a routerLink="/shop" class="btn-primary-green">
+      <i class="fas fa-arrow-left"></i> Start Shopping
+    </a>
+  </div>
+
+  <!-- Cart Content Layout -->
+  <div *ngIf="!isLoading && cartProducts.length > 0" class="cart-layout">
+
+    <!-- ================= Left: Cart Items List ================= -->
+    <div class="cart-items-column">
+      <div class="cart-items-list">
+        
+        <div *ngFor="let item of cartProducts" class="cart-item-card">
+          
+          <!-- Image Box + Stock Pill -->
+          <div class="item-img-area">
+            <div class="item-image-box" [routerLink]="['/product-details', item.product._id]">
+              <img [src]="item.product.imageCover" [alt]="item.product.title" />
+            </div>
+            <span class="stock-pill">In Stock</span>
+          </div>
+
+          <!-- Product Details Info -->
+          <div class="item-details-area">
+            <h3 class="item-name" [routerLink]="['/product-details', item.product._id]">
+              {{ item.product.title }}
+            </h3>
+            
+            <div class="item-meta-row">
+              <span class="category-tag">{{ item.product.category.name }}</span>
+              <span class="sku-tag">SKU: {{ item.product.slug.substring(0, 8).toUpperCase() }}</span>
+            </div>
+
+
+            <div class="unit-price-text">
+              <strong>{{ item.price }} EGP</strong> <span class="per-unit">per unit</span>
+            </div>
+
+            <!-- Quantity Counter -->
+            <div class="cart-qty-counter">
+              <button 
+                type="button" 
+                class="btn-counter" 
+                (click)="updateQuantity(item.product._id, item.count, -1)"
+                [disabled]="updatingItemId === item.product._id"
+              >
+                -
+              </button>
+              <span class="counter-num">
+                <span *ngIf="updatingItemId !== item.product._id">{{ item.count }}</span>
+                <span *ngIf="updatingItemId === item.product._id" class="spinner-border spinner-border-sm"></span>
+              </span>
+              <button 
+                type="button" 
+                class="btn-counter btn-counter-plus" 
+                (click)="updateQuantity(item.product._id, item.count, 1)"
+                [disabled]="updatingItemId === item.product._id"
+              >
+                +
+              </button>
+            </div>
+          </div>
+
+          <!-- Item Total & Remove Button -->
+          <div class="item-total-area">
+            <div class="item-total-text">
+              <span class="total-label">Total</span>
+              <span class="total-amount">{{ item.price * item.count }} EGP</span>
+            </div>
+
+            <button 
+              type="button" 
+              class="btn-item-delete" 
+              (click)="removeItem(item.product._id)"
+              [disabled]="removingItemId === item.product._id"
+              title="Remove item"
+            >
+              <i *ngIf="removingItemId !== item.product._id" class="far fa-trash-alt"></i>
+              <span *ngIf="removingItemId === item.product._id" class="spinner-border spinner-border-sm"></span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Bottom Actions -->
+      <div class="cart-bottom-actions">
+        <a routerLink="/shop" class="link-continue">
+          <i class="fas fa-arrow-left"></i> Continue Shopping
+        </a>
+
+        <button type="button" class="btn-clear-cart" (click)="clearCart()" [disabled]="isClearing">
+          <i class="far fa-trash-alt"></i>
+          <span *ngIf="!isClearing">Clear All Items</span>
+          <span *ngIf="isClearing">Clearing...</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ================= Right: Order Summary Card ================= -->
+    <div class="order-summary-column">
+      <div class="order-summary-card">
+        
+        <!-- Header -->
+        <div class="summary-header">
+          <i class="fas fa-shopping-bag"></i>
+          <div>
+            <h3>Order Summary</h3>
+            <p>{{ numOfCartItems }} items in your cart</p>
+          </div>
+        </div>
+
+        <div class="summary-body">
+          <!-- Free Shipping Notification -->
+          <div class="free-shipping-box">
+            <i class="fas fa-truck icon-green"></i>
+            <div>
+              <strong>Free Shipping!</strong>
+              <p>You qualify for free delivery</p>
+            </div>
+          </div>
+
+          <!-- Pricing Lines -->
+          <div class="summary-line">
+            <span>Subtotal</span>
+            <strong>{{ totalCartPrice }} EGP</strong>
+          </div>
+
+          <div class="summary-line" *ngIf="promoApplied">
+            <span>Discount (Promo)</span>
+            <strong class="text-danger">-{{ promoDiscount }} EGP</strong>
+          </div>
+
+          <div class="summary-line">
+            <span>Shipping</span>
+            <span class="shipping-free">FREE</span>
+          </div>
+
+          <div class="divider-line"></div>
+
+          <!-- Total -->
+          <div class="summary-line total-line">
+            <span>Total</span>
+            <span class="final-total">{{ finalPrice }} EGP</span>
+          </div>
+
+          <!-- Promo Code Input -->
+          <div class="promo-code-box">
+            <div class="promo-input-group">
+              <i class="fas fa-tag promo-icon"></i>
+              <input 
+                type="text" 
+                placeholder="Apply Promo Code" 
+                [(ngModel)]="promoCode" 
+                (keyup.enter)="applyPromo()"
+              />
+              <button type="button" class="btn-apply-promo" (click)="applyPromo()">Apply</button>
+            </div>
+          </div>
+
+          <!-- Checkout Button -->
+          <button type="button" class="btn-secure-checkout" (click)="proceedToCheckout()">
+            <i class="fas fa-lock"></i> Secure Checkout
+          </button>
+
+          <!-- Badges -->
+          <div class="summary-trust-badges">
+            <span><i class="fas fa-shield-alt icon-green"></i> Secure Payment</span>
+            <span><i class="fas fa-truck icon-green"></i> Fast Delivery</span>
+          </div>
+
+          <!-- Continue Shopping Link -->
+          <div class="summary-continue-link">
+            <a routerLink="/shop"><i class="fas fa-arrow-left"></i> Continue Shopping</a>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>

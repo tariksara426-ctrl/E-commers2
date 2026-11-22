@@ -1,0 +1,122 @@
+<div class="signin-wrapper">
+  <div class="signin-card">
+    
+    <!-- القسم الأيسر: الترويجي -->
+    <div class="signin-left">
+      <div class="promo-img-container">
+        <img src="/Trolley.jpg" alt="FreshCart Products" class="promo-img" />
+      </div>
+      <h2>FreshCart - Your One-Stop Shop for Fresh Products</h2>
+      <p>Join thousands of happy customers who trust FreshCart for their daily grocery needs.</p>
+      
+      <div class="promo-badges">
+        <span><i class="fas fa-truck icon-green"></i> Free Delivery</span>
+        <span><i class="fas fa-shield-alt icon-green"></i> Secure Payment</span>
+        <span><i class="fas fa-headset icon-green"></i> 24/7 Support</span>
+      </div>
+    </div>
+
+    <!-- القسم الأيمن: Form تسجيل الدخول -->
+    <div class="signin-right">
+      <div class="form-header">
+        <div class="logo-box">
+          <i class="fas fa-shopping-cart logo-icon"></i>
+          <span class="logo-text">FreshCart</span>
+        </div>
+        <h3>Welcome Back!</h3>
+        <p class="subtitle">Sign in to continue your fresh shopping experience</p>
+      </div>
+
+      <!-- أزرار الدخول السريع -->
+      <div class="social-btns">
+        <button type="button" class="social-btn">
+          <i class="fab fa-google google-color"></i> Continue with Google
+        </button>
+        <button type="button" class="social-btn">
+          <i class="fab fa-facebook-f fb-color"></i> Continue with Facebook
+        </button>
+      </div>
+
+      <div class="divider">
+        <span>OR CONTINUE WITH EMAIL</span>
+      </div>
+
+      <!-- رسالة خطأ الـ API في حال كان الإيميل أو الباسورد غلط -->
+      <div *ngIf="apiErrorMessage" class="error-alert">
+        <i class="fas fa-exclamation-circle"></i> {{ apiErrorMessage }}
+      </div>
+
+      <!-- نموذج البيانات -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="signin-form">
+        
+        <!-- حقل البريد الإلكتروني -->
+        <div class="form-field">
+          <label>Email Address</label>
+          <div class="input-box">
+            <i class="far fa-envelope input-icon"></i>
+            <input 
+              type="email" 
+              formControlName="email" 
+              placeholder="Enter your email" 
+            />
+          </div>
+          <!-- التنبيهات باللون الأحمر (Email required) -->
+          <div *ngIf="loginForm.get('email')?.touched && loginForm.get('email')?.invalid" class="error-text">
+            <span *ngIf="loginForm.get('email')?.errors?.['required']">Email is required</span>
+            <span *ngIf="loginForm.get('email')?.errors?.['email']">Please enter a valid email address</span>
+          </div>
+        </div>
+
+        <!-- حقل كلمة المرور -->
+        <div class="form-field">
+          <div class="field-header">
+            <label>Password</label>
+            <a routerLink="/forgot-password" class="forgot-pass">Forgot Password?</a>
+          </div>
+          <div class="input-box">
+            <i class="fas fa-lock input-icon"></i>
+            <input 
+              [type]="showPassword ? 'text' : 'password'" 
+              formControlName="password" 
+              placeholder="Enter your password" 
+            />
+            <i 
+              class="far" 
+              [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'" 
+              (click)="togglePasswordVisibility()" 
+              style="cursor: pointer;">
+            </i>
+          </div>
+          <!-- التنبيهات باللون الأحمر (Password required) -->
+          <div *ngIf="loginForm.get('password')?.touched && loginForm.get('password')?.invalid" class="error-text">
+            <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required</span>
+          </div>
+        </div>
+
+        <div class="remember-me">
+          <label>
+            <input type="checkbox" /> Keep me signed in
+          </label>
+        </div>
+
+        <button type="submit" class="submit-app-btn submit-btn" [disabled]="isLoading">
+          <span *ngIf="!isLoading">Sign In</span>
+          <span *ngIf="isLoading">Signing In...</span>
+        </button>
+      </form>
+
+      <div class="form-footer">
+        <span>New to FreshCart?</span>
+        <a routerLink="/register" class="create-link">Create an account</a>
+      </div>
+
+
+      <div class="trust-tags">
+        <span><i class="fas fa-lock"></i> SSL Secured</span>
+        <span><i class="fas fa-users"></i> 50K+ Users</span>
+        <span><i class="fas fa-star"></i> 4.9 Rating</span>
+      </div>
+    </div>
+
+  </div>
+</div>

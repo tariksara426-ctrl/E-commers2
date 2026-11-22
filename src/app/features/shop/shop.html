@@ -1,0 +1,271 @@
+<div class="shop-page container">
+
+  <!-- Top Breadcrumb & Page Search -->
+  <div class="shop-top-header">
+    <span class="breadcrumb"><a routerLink="/">Home</a> / Search Results</span>
+    <div class="shop-search-bar">
+      <i class="fas fa-search search-icon"></i>
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        (keyup.enter)="onSearchSubmit()" 
+        placeholder="Search for products..." 
+      />
+    </div>
+  </div>
+
+  <div class="shop-layout">
+
+    <!-- ================= Left Sidebar Filters ================= -->
+    <aside class="shop-sidebar">
+      
+      <!-- Categories Filter -->
+      <div class="filter-card">
+        <h4 class="filter-title">Categories</h4>
+        <div class="filter-scrollable">
+          <label *ngFor="let cat of categories" class="filter-checkbox-label">
+            <input 
+              type="checkbox" 
+              [checked]="selectedCategories.has(cat._id)"
+              (change)="toggleCategory(cat._id)"
+            />
+            <span>{{ cat.name }}</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Price Range Filter -->
+      <div class="filter-card">
+        <h4 class="filter-title">Price Range</h4>
+        <div class="price-inputs-row">
+          <div class="price-input-box">
+            <label>Min (EGP)</label>
+            <input type="number" [(ngModel)]="minPrice" placeholder="0" (change)="fetchFilteredProducts()" />
+          </div>
+          <div class="price-input-box">
+            <label>Max (EGP)</label>
+            <input type="number" [(ngModel)]="maxPrice" placeholder="No limit" (change)="fetchFilteredProducts()" />
+          </div>
+        </div>
+
+        <!-- Quick Pills -->
+        <div class="quick-pills-grid">
+          <button type="button" class="quick-pill" (click)="setQuickPrice(500)">Under 500</button>
+          <button type="button" class="quick-pill" (click)="setQuickPrice(1000)">Under 1K</button>
+          <button type="button" class="quick-pill" (click)="setQuickPrice(5000)">Under 5K</button>
+          <button type="button" class="quick-pill" (click)="setQuickPrice(10000)">Under 10K</button>
+        </div>
+      </div>
+
+      <!-- Brands Filter -->
+      <div class="filter-card">
+        <h4 class="filter-title">Brands</h4>
+        <div class="filter-scrollable">
+          <label *ngFor="let brand of brands" class="filter-checkbox-label">
+            <input 
+              type="checkbox" 
+              [checked]="selectedBrands.has(brand._id)"
+              (change)="toggleBrand(brand._id)"
+            />
+            <span>{{ brand.name }}</span>
+          </label>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- ================= Main Products Area ================= -->
+    <main class="shop-main">
+
+      <!-- View and Sort Toolbar -->
+      <div class="shop-toolbar">
+        <div class="view-mode-buttons">
+          <button 
+            type="button" 
+            class="view-btn" 
+            [class.active]="viewMode === 'grid'"
+            (click)="viewMode = 'grid'"
+            aria-label="Grid View"
+          >
+            <i class="fas fa-th"></i>
+          </button>
+          <button 
+            type="button" 
+            class="view-btn" 
+            [class.active]="viewMode === 'list'"
+            (click)="viewMode = 'list'"
+            aria-label="List View"
+          >
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+
+        <div class="sort-dropdown-box">
+          <label>Sort by:</label>
+          <select [(ngModel)]="selectedSort" (change)="onSortChange()">
+            <option value="">Relevance</option>
+            <option value="price">Price: Low to High</option>
+            <option value="-price">Price: High to Low</option>
+            <option value="-ratingsAverage">Top Rated</option>
+            <option value="title">Title: A to Z</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div *ngIf="isLoading" class="loading-state">
+        <div class="spinner-border text-success"></div>
+        <p>Loading matching products...</p>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!isLoading && products.length === 0" class="empty-state">
+        <i class="fas fa-search"></i>
+        <h3>No products found</h3>
+        <p>Try adjusting your search query or removing some filters.</p>
+      </div>
+
+      <!-- 4-Column Grid View -->
+      <div *ngIf="!isLoading && viewMode === 'grid'" class="products-grid-4">
+        <div 
+          *ngFor="let product of products" 
+          class="product-card"
+          [routerLink]="['/product-details', product._id]"
+        >
+          <!-- Discount Badge -->
+          <span *ngIf="product.priceAfterDiscount && product.priceAfterDiscount < product.price" class="badge-discount">
+            -{{ ((product.price - product.priceAfterDiscount) / product.price * 100) | number:'1.0-0' }}%
+          </span>
+
+          <!-- Card Actions -->
+          <div class="card-actions">
+            <button 
+              type="button" 
+              class="action-icon-btn" 
+              [class.active-wishlist]="wishlistService.isInWishlist(product._id)"
+              (click)="toggleWishlist(product, $event)"
+              title="Wishlist"
+            >
+              <i [class]="wishlistService.isInWishlist(product._id) ? 'fas fa-heart' : 'far fa-heart'"></i>
+            </button>
+            <button type="button" class="action-icon-btn" title="Compare">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+            <button type="button" class="action-icon-btn" title="Quick View">
+              <i class="far fa-eye"></i>
+            </button>
+          </div>
+
+          <!-- Product Image -->
+          <div class="product-img-box">
+            <img [src]="product.imageCover" [alt]="product.title" loading="lazy" />
+          </div>
+
+          <!-- Category -->
+          <span class="product-category">{{ product.category.name }}</span>
+
+
+          <!-- Title -->
+          <h4 class="product-title" [title]="product.title">{{ product.title }}</h4>
+
+          <!-- Rating -->
+          <div class="product-rating">
+            <i class="fas fa-star"></i>
+            <span>{{ product.ratingsAverage || 4.5 }}</span>
+            <span class="text-muted">({{ product.ratingsQuantity || 10 }})</span>
+          </div>
+
+          <!-- Footer: Price & Add to Cart Circle -->
+          <div class="product-footer">
+            <div class="price-box">
+              <span class="current-price">
+                {{ product.priceAfterDiscount || product.price }} EGP
+              </span>
+              <span *ngIf="product.priceAfterDiscount && product.priceAfterDiscount < product.price" class="old-price">
+                {{ product.price }} EGP
+              </span>
+            </div>
+
+            <button 
+              type="button" 
+              class="btn-add-cart-circle" 
+              [disabled]="addingToCartId === product._id"
+              (click)="addToCart(product, $event)"
+              title="Add to Cart"
+            >
+              <i *ngIf="addingToCartId !== product._id" class="fas fa-plus"></i>
+              <span *ngIf="addingToCartId === product._id" class="spinner-border spinner-border-sm"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- List View -->
+      <div *ngIf="!isLoading && viewMode === 'list'" class="products-list-view">
+        <div 
+          *ngFor="let product of products" 
+          class="product-list-card"
+          [routerLink]="['/product-details', product._id]"
+        >
+          <div class="list-img-box">
+            <img [src]="product.imageCover" [alt]="product.title" loading="lazy" />
+          </div>
+          <div class="list-info-box">
+            <span class="product-category">{{ product.category.name }}</span>
+            <h4 class="product-title">{{ product.title }}</h4>
+
+            <div class="product-rating">
+              <i class="fas fa-star"></i>
+              <span>{{ product.ratingsAverage }}</span>
+              <span class="text-muted">({{ product.ratingsQuantity }})</span>
+            </div>
+            <p class="list-desc">{{ product.description }}</p>
+          </div>
+          <div class="list-price-action">
+            <span class="current-price">{{ product.priceAfterDiscount || product.price }} EGP</span>
+            <span *ngIf="product.priceAfterDiscount" class="old-price">{{ product.price }} EGP</span>
+            <button 
+              type="button" 
+              class="btn-primary-green"
+              (click)="addToCart(product, $event)"
+              [disabled]="addingToCartId === product._id"
+            >
+              <i class="fas fa-shopping-cart"></i> Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <div class="pagination-container" *ngIf="!isLoading && totalPages > 1">
+        <button 
+          class="page-btn arrow" 
+          [disabled]="currentPage === 1" 
+          (click)="goToPage(currentPage - 1)"
+        >
+          <i class="fas fa-chevron-left"></i>
+        </button>
+
+        <button 
+          *ngFor="let page of [1, 2, 3, 4, 5]" 
+          class="page-btn" 
+          [class.active]="currentPage === page"
+          (click)="goToPage(page)"
+        >
+          {{ page }}
+        </button>
+
+        <button 
+          class="page-btn arrow" 
+          [disabled]="currentPage === totalPages" 
+          (click)="goToPage(currentPage + 1)"
+        >
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+
+    </main>
+
+  </div>
+
+</div>

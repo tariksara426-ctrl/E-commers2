@@ -1,0 +1,97 @@
+<div class="categories-page">
+
+  <!-- ================= Green Header Banner ================= -->
+  <div class="page-header-green">
+    <div class="container">
+      <span class="breadcrumb"><a routerLink="/">Home</a> / Categories</span>
+      <div class="header-title-box">
+        <div class="header-icon-badge">
+          <i class="fas fa-layer-group"></i>
+        </div>
+        <div>
+          <h1>All Categories</h1>
+          <p>Browse our wide range of product categories</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Categories Content ================= -->
+  <div class="container categories-container">
+
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner-border text-success"></div>
+      <p>Loading categories...</p>
+    </div>
+
+    <!-- 5-Column Grid -->
+    <div *ngIf="!isLoading" class="categories-grid-5">
+      <div 
+        *ngFor="let cat of categories" 
+        class="category-card"
+        (click)="goToShopWithCategory(cat._id)"
+      >
+        <div class="category-img-box">
+          <img [src]="cat.image" [alt]="cat.name" loading="lazy" />
+        </div>
+        <div class="category-info">
+          <h3 class="category-title">{{ cat.name }}</h3>
+          <button 
+            type="button" 
+            class="btn-subcategories-link" 
+            (click)="openSubcategories(cat, $event)"
+          >
+            View Subcategories <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= Subcategories Modal ================= -->
+  <div class="modal-backdrop" *ngIf="selectedCategory" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <img [src]="selectedCategory.image" [alt]="selectedCategory.name" class="modal-cat-thumb" />
+          <div>
+            <h3>{{ selectedCategory.name }}</h3>
+            <p>Subcategories</p>
+          </div>
+        </div>
+        <button class="btn-close-modal" (click)="closeModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div *ngIf="isLoadingSub" class="loading-state">
+          <div class="spinner-border text-success"></div>
+          <p>Loading subcategories...</p>
+        </div>
+
+        <div *ngIf="!isLoadingSub && subcategories.length === 0" class="empty-sub">
+          <p>No subcategories found for this category.</p>
+        </div>
+
+        <div *ngIf="!isLoadingSub && subcategories.length > 0" class="subcategories-grid">
+          <a 
+            *ngFor="let sub of subcategories" 
+            [routerLink]="['/shop']" 
+            [queryParams]="{ category: selectedCategory._id }"
+            (click)="closeModal()"
+            class="subcategory-pill"
+          >
+            <i class="fas fa-tag"></i> {{ sub.name }}
+          </a>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-primary-green" (click)="goToShopWithCategory(selectedCategory._id); closeModal()">
+          Browse All in {{ selectedCategory.name }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

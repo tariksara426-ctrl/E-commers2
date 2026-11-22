@@ -1,0 +1,304 @@
+<div class="product-details-page container">
+
+  <!-- ================= Breadcrumbs ================= -->
+  <div class="breadcrumbs-row" *ngIf="product">
+    <a routerLink="/">Home</a>
+    <i class="fas fa-chevron-right"></i>
+    <a [routerLink]="['/shop']" [queryParams]="{ category: product.category._id }">
+      {{ product.category.name }}
+    </a>
+
+    <i class="fas fa-chevron-right"></i>
+    <span *ngIf="product.subcategories && product.subcategories.length > 0">
+      {{ product.subcategories[0]?.name }}
+      <i class="fas fa-chevron-right"></i>
+    </span>
+    <span class="current-crumb">{{ product.title }}</span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-state">
+    <div class="spinner-border text-success"></div>
+    <p>Loading product details...</p>
+  </div>
+
+  <div *ngIf="!isLoading && product" class="details-main-grid">
+
+    <!-- ================= Left: Image Gallery ================= -->
+    <div class="gallery-column">
+      <div class="main-image-box">
+        <img [src]="selectedImage" [alt]="product.title" />
+      </div>
+
+      <!-- Thumbnail Strip -->
+      <div class="thumbnails-strip" *ngIf="product.images && product.images.length > 1">
+        <div 
+          *ngFor="let img of product.images" 
+          class="thumb-box" 
+          [class.active]="selectedImage === img"
+          (click)="selectImage(img)"
+        >
+          <img [src]="img" [alt]="product.title" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= Right: Product Information & Buying Actions ================= -->
+    <div class="info-column">
+      
+      <!-- Category & Brand Pills -->
+      <div class="pills-row">
+        <span class="pill pill-green">{{ product.category.name }}</span>
+        <span *ngIf="product.brand" class="pill pill-gray">{{ product.brand.name }}</span>
+      </div>
+
+
+      <!-- Product Title -->
+      <h1 class="details-title">{{ product.title }}</h1>
+
+      <!-- Rating & Reviews -->
+      <div class="details-rating">
+        <div class="stars-gold">
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star"></i>
+          <i class="fas fa-star-half-alt"></i>
+        </div>
+        <span class="rating-score">{{ product.ratingsAverage || 4.8 }}</span>
+        <span class="reviews-count">({{ product.ratingsQuantity || 18 }} reviews)</span>
+      </div>
+
+      <!-- Price -->
+      <div class="details-price-row">
+        <span class="main-price">
+          {{ product.priceAfterDiscount || product.price }} EGP
+        </span>
+        <span *ngIf="product.priceAfterDiscount && product.priceAfterDiscount < product.price" class="main-old-price">
+          {{ product.price }} EGP
+        </span>
+      </div>
+
+      <!-- In Stock Badge -->
+      <div class="stock-badge">
+        <i class="fas fa-check"></i> In Stock
+      </div>
+
+      <!-- Short Description -->
+      <p class="details-short-desc">
+        {{ product.description }}
+      </p>
+
+      <!-- Quantity Picker -->
+      <div class="quantity-section">
+        <label>Quantity</label>
+        <div class="quantity-row">
+          <div class="qty-counter">
+            <button type="button" class="btn-qty" (click)="decrementQty()" [disabled]="quantity <= 1">-</button>
+            <span class="qty-value">{{ quantity }}</span>
+            <button type="button" class="btn-qty" (click)="incrementQty()">+</button>
+          </div>
+          <span class="available-text">{{ product.quantity || 220 }} available</span>
+        </div>
+      </div>
+
+      <!-- Total Price -->
+      <div class="total-price-box">
+        <span>Total Price:</span>
+        <strong class="total-price-value">{{ totalPrice | number:'1.2-2' }} EGP</strong>
+      </div>
+
+      <!-- Primary Action Buttons: Add to Cart & Buy Now -->
+      <div class="actions-buttons-row">
+        <button type="button" class="btn-action-cart" (click)="addToCart()" [disabled]="isAddingToCart">
+          <i class="fas fa-shopping-cart"></i>
+          <span *ngIf="!isAddingToCart">Add to Cart</span>
+          <span *ngIf="isAddingToCart">Adding...</span>
+        </button>
+
+        <button type="button" class="btn-action-buy" (click)="buyNow()" [disabled]="isBuyingNow">
+          <i class="fas fa-bolt"></i>
+          <span *ngIf="!isBuyingNow">Buy Now</span>
+          <span *ngIf="isBuyingNow">Redirecting...</span>
+        </button>
+      </div>
+
+      <!-- Secondary Actions: Wishlist & Share -->
+      <div class="secondary-actions-row">
+        <button 
+          type="button" 
+          class="btn-action-wishlist" 
+          [class.active-wishlist]="wishlistService.isInWishlist(product._id)"
+          (click)="toggleWishlist()"
+        >
+          <i [class]="wishlistService.isInWishlist(product._id) ? 'fas fa-heart text-danger' : 'far fa-heart'"></i>
+          <span>{{ wishlistService.isInWishlist(product._id) ? 'In Wishlist' : 'Add to Wishlist' }}</span>
+        </button>
+
+        <button type="button" class="btn-action-share" (click)="shareProduct()" title="Share Product">
+          <i class="fas fa-share-alt"></i>
+        </button>
+      </div>
+
+      <!-- 3 Feature Pills -->
+      <div class="details-features-strip">
+        <div class="feature-strip-item">
+          <i class="fas fa-truck icon-green"></i>
+          <div>
+            <strong>Free Delivery</strong>
+            <span>Orders over 500</span>
+          </div>
+        </div>
+        <div class="feature-strip-item">
+          <i class="fas fa-undo-alt icon-green"></i>
+          <div>
+            <strong>30 Days Return</strong>
+            <span>Money back</span>
+          </div>
+        </div>
+        <div class="feature-strip-item">
+          <i class="fas fa-shield-alt icon-green"></i>
+          <div>
+            <strong>Secure Payment</strong>
+            <span>100% Protected</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ================= Details / Reviews / Shipping Tabs ================= -->
+  <section class="tabs-section" *ngIf="!isLoading && product">
+    <div class="tabs-nav">
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'details'"
+        (click)="activeTab = 'details'"
+      >
+        <i class="fas fa-align-left"></i> Product Details
+      </button>
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'reviews'"
+        (click)="activeTab = 'reviews'"
+      >
+        <i class="fas fa-star"></i> Reviews ({{ product.ratingsQuantity || 18 }})
+      </button>
+      <button 
+        type="button" 
+        class="tab-btn" 
+        [class.active]="activeTab === 'shipping'"
+        (click)="activeTab = 'shipping'"
+      >
+        <i class="fas fa-truck"></i> Shipping & Returns
+      </button>
+    </div>
+
+    <div class="tab-content-panel">
+      <!-- Tab 1: Product Details -->
+      <div *ngIf="activeTab === 'details'" class="tab-pane">
+        <h3>About this Product</h3>
+        <p class="tab-lead-text">{{ product.description }}</p>
+
+        <div class="details-specs-grid">
+          <!-- Information Table -->
+          <div class="specs-box">
+            <h4>Product Information</h4>
+            <table class="specs-table">
+              <tr>
+                <td>Category</td>
+                <td><strong>{{ product.category.name }}</strong></td>
+              </tr>
+              <tr *ngIf="product.subcategories && product.subcategories.length > 0">
+                <td>Subcategory</td>
+                <td><strong>{{ product.subcategories[0]?.name }}</strong></td>
+              </tr>
+              <tr *ngIf="product.brand">
+                <td>Brand</td>
+                <td><strong>{{ product.brand.name }}</strong></td>
+              </tr>
+
+              <tr>
+                <td>Items Sold</td>
+                <td><strong>{{ product.sold || 100 }}+ sold</strong></td>
+              </tr>
+            </table>
+          </div>
+
+          <!-- Key Features -->
+          <div class="features-checklist-box">
+            <h4>Key Features</h4>
+            <ul class="checklist">
+              <li><i class="fas fa-check-circle icon-green"></i> Premium Quality Product</li>
+              <li><i class="fas fa-check-circle icon-green"></i> 100% Authentic Guarantee</li>
+              <li><i class="fas fa-check-circle icon-green"></i> Fast & Secure Packaging</li>
+              <li><i class="fas fa-check-circle icon-green"></i> Quality Tested</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Reviews -->
+      <div *ngIf="activeTab === 'reviews'" class="tab-pane">
+        <h3>Customer Reviews</h3>
+        <div class="reviews-summary-row">
+          <div class="score-card">
+            <h2>{{ product.ratingsAverage || 4.8 }}</h2>
+            <div class="stars-gold">
+              <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+            </div>
+            <p>Based on {{ product.ratingsQuantity || 18 }} reviews</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Shipping & Returns -->
+      <div *ngIf="activeTab === 'shipping'" class="tab-pane">
+        <h3>Shipping & Returns Policy</h3>
+        <p>• Standard delivery within 2-3 business days across Egypt.</p>
+        <p>• Free shipping on orders over 500 EGP.</p>
+        <p>• Hassle-free 14-day returns policy on all eligible items.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= You May Also Like ================= -->
+  <section class="related-section" *ngIf="relatedProducts.length > 0">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="bar-accent"></span> You May Also <span class="highlight">Like</span>
+      </h2>
+    </div>
+
+    <div class="products-grid-5">
+      <div 
+        *ngFor="let rel of relatedProducts" 
+        class="product-card"
+        [routerLink]="['/product-details', rel._id]"
+      >
+        <div class="product-img-box">
+          <img [src]="rel.imageCover" [alt]="rel.title" loading="lazy" />
+        </div>
+        <span class="product-category">{{ rel.category.name }}</span>
+
+        <h4 class="product-title">{{ rel.title }}</h4>
+        <div class="product-rating">
+          <i class="fas fa-star"></i>
+          <span>{{ rel.ratingsAverage }}</span>
+          <span class="text-muted">({{ rel.ratingsQuantity }})</span>
+        </div>
+        <div class="product-footer">
+          <span class="current-price">{{ rel.priceAfterDiscount || rel.price }} EGP</span>
+          <button type="button" class="btn-add-cart-circle" (click)="cartService.addToCart(rel._id).subscribe()">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
